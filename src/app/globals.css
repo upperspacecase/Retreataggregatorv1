@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FAF7F2;
+  --color-cream-dark: #F0EBE3;
+  --color-linen: #F5F0E8;
+  --color-stone: #E8E0D4;
+  --color-warm-gray: #A89F91;
+  --color-charcoal: #2C2825;
+  --color-charcoal-light: #4A4541;
+  --color-sage: #8B9E8B;
+  --color-sage-dark: #6B7E6B;
+  --color-clay: #C4A882;
+  --color-ochre: #C8944A;
+  --color-terracotta: #B87A5E;
+  --color-teal: #5B8A8A;
+  --color-teal-dark: #4A7272;
+
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-up: fade-up 700ms var(--ease-settle) both;
+  --animate-fade-in: fade-in 500ms var(--ease-settle) both;
+  --animate-breathe: breathe 4s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes breathe {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+  }
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-charcoal);
+  background-color: var(--color-cream);
+  line-height: 1.7;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+/* Scroll reveal animation utility */
+.scroll-hidden {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.scroll-visible {
+  animation: fade-up 700ms var(--ease-settle) both;
+}
+
+.scroll-visible-delay-1 {
+  animation: fade-up 700ms var(--ease-settle) 100ms both;
+}
+
+.scroll-visible-delay-2 {
+  animation: fade-up 700ms var(--ease-settle) 200ms both;
+}
+
+.scroll-visible-delay-3 {
+  animation: fade-up 700ms var(--ease-settle) 300ms both;
+}
+
+/* Subtle grain texture overlay */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  z-index: 9999;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-stone);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-warm-gray);
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-clay);
+  color: var(--color-cream);
+}
