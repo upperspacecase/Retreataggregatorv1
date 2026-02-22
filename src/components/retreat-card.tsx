@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useScrollReveal } from "@/lib/use-scroll-reveal";
 import { useSaved } from "@/lib/saved-context";
@@ -48,13 +49,16 @@ export function RetreatCard({ retreat, index }: RetreatCardProps) {
           onClick={handleCardClick}
         >
           <div className="relative overflow-hidden aspect-[4/3] md:aspect-[3/2]">
-            <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-[600ms] group-hover:scale-[1.02]"
+            <Image
+              src={retreat.images.hero}
+              alt={`${retreat.name} — wellness retreat in ${retreat.location}`}
+              fill
+              className="object-cover object-center transition-transform duration-[600ms] group-hover:scale-[1.02]"
               style={{
-                backgroundImage: `url('${retreat.images.hero}')`,
                 transitionTimingFunction:
                   "cubic-bezier(0.22, 1, 0.36, 1)",
               }}
+              sizes="(max-width: 768px) 100vw, 60vw"
             />
             <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors duration-[400ms]" />
 

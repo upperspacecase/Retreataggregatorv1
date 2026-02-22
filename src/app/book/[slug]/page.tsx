@@ -245,34 +245,40 @@ export default function BookRetreat({
                 2. Your details
               </legend>
               <div>
-                <label htmlFor="guest-name" className="sr-only">
-                  Full name
+                <label
+                  htmlFor="guest-name"
+                  className="text-sm text-charcoal-light block mb-1.5"
+                >
+                  Your name
                 </label>
                 <input
                   id="guest-name"
                   type="text"
-                  placeholder="Full name"
+                  placeholder="e.g. Sarah Mitchell"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   autoComplete="name"
                   required
-                  className="w-full px-4 py-3.5 bg-transparent border border-stone/60 rounded-sm text-charcoal placeholder:text-warm-gray/60 focus:border-charcoal focus:outline-none transition-colors duration-300"
+                  className="w-full px-4 py-3.5 bg-transparent border border-stone/60 rounded-sm text-charcoal placeholder:text-warm-gray/40 focus:border-charcoal focus:outline-none transition-colors duration-300"
                 />
               </div>
               <div>
-                <label htmlFor="guest-email" className="sr-only">
+                <label
+                  htmlFor="guest-email"
+                  className="text-sm text-charcoal-light block mb-1.5"
+                >
                   Email address
                 </label>
                 <input
                   id="guest-email"
                   type="email"
-                  placeholder="Email address"
+                  placeholder="e.g. sarah@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => setEmailTouched(true)}
                   autoComplete="email"
                   required
-                  className={`w-full px-4 py-3.5 bg-transparent border rounded-sm text-charcoal placeholder:text-warm-gray/60 focus:border-charcoal focus:outline-none transition-colors duration-300 ${
+                  className={`w-full px-4 py-3.5 bg-transparent border rounded-sm text-charcoal placeholder:text-warm-gray/40 focus:border-charcoal focus:outline-none transition-colors duration-300 ${
                     emailTouched && email && !isValidEmail
                       ? "border-terracotta/60"
                       : "border-stone/60"
@@ -285,7 +291,7 @@ export default function BookRetreat({
                 )}
               </div>
               <p className="text-xs text-warm-gray/60">
-                We&rsquo;ll send your confirmation and preparation guide here.
+                We&rsquo;ll send your confirmation and preparation guide to this address.
               </p>
             </fieldset>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { retreats } from "@/data/retreats";
 import { useSaved } from "@/lib/saved-context";
@@ -125,15 +126,22 @@ export default function RetreatDetail({
         aria-label={`${retreat.name} hero image`}
       >
         <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms]"
+          className={`absolute inset-0 transition-transform duration-[1200ms] ${
+            heroLoaded ? "scale-100" : "scale-105"
+          }`}
           style={{
-            backgroundImage: `url('${retreat.images.hero}')`,
-            transform: heroLoaded ? "scale(1)" : "scale(1.05)",
             transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
           }}
-          role="img"
-          aria-label={`${retreat.name} in ${retreat.location}`}
-        />
+        >
+          <Image
+            src={retreat.images.hero}
+            alt={`${retreat.name} — wellness retreat in ${retreat.location}`}
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/20 via-transparent to-charcoal/60" />
 
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 lg:p-24">
@@ -228,12 +236,15 @@ export default function RetreatDetail({
                 delay={i * 80}
                 className="flex-shrink-0 w-[80vw] md:w-[45%] snap-center"
               >
-                <div
-                  className="aspect-[3/2] bg-cover bg-center rounded-sm"
-                  style={{ backgroundImage: `url('${img}')` }}
-                  role="img"
-                  aria-label={`${retreat.name} photo ${i + 1}`}
-                />
+                <div className="relative aspect-[3/2] rounded-sm overflow-hidden">
+                  <Image
+                    src={img}
+                    alt={`${retreat.name} — photo ${i + 1} of ${retreat.images.gallery.length}`}
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 80vw, 45vw"
+                  />
+                </div>
               </ScrollSection>
             ))}
           </div>

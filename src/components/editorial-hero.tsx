@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export function EditorialHero() {
@@ -16,16 +17,22 @@ export function EditorialHero() {
     >
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms]"
+        className={`absolute inset-0 transition-transform duration-[1200ms] ${
+          loaded ? "scale-100" : "scale-105"
+        }`}
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80')",
-          transform: loaded ? "scale(1)" : "scale(1.05)",
           transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
         }}
-        role="img"
-        aria-label="Mountain valley at dawn with soft morning light"
-      />
+      >
+        <Image
+          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+          alt="Mountain valley at dawn with soft morning light — Curated Calm wellness retreats"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+      </div>
 
       {/* Warm gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-charcoal/30 via-charcoal/10 to-charcoal/50" />
