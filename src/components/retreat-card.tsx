@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useScrollReveal } from "@/lib/use-scroll-reveal";
 import { useSaved } from "@/lib/saved-context";
+import { analytics } from "@/lib/analytics";
 import type { Retreat } from "@/data/retreats";
 
 interface RetreatCardProps {
@@ -15,6 +16,19 @@ export function RetreatCard({ retreat, index }: RetreatCardProps) {
   const { isSaved, toggleSave } = useSaved();
   const saved = isSaved(retreat.slug);
   const isEven = index % 2 === 0;
+
+  function handleCardClick() {
+    analytics.retreatCardClicked(retreat.slug, retreat.name, index);
+  }
+
+  function handleSave() {
+    if (saved) {
+      analytics.retreatUnsaved(retreat.slug);
+    } else {
+      analytics.retreatSaved(retreat.slug, retreat.name, retreat.location);
+    }
+    toggleSave(retreat.slug);
+  }
 
   return (
     <article
@@ -31,6 +45,7 @@ export function RetreatCard({ retreat, index }: RetreatCardProps) {
         <Link
           href={`/retreat/${retreat.slug}`}
           className="w-full md:w-3/5 group"
+          onClick={handleCardClick}
         >
           <div className="relative overflow-hidden aspect-[4/3] md:aspect-[3/2]">
             <div
@@ -90,13 +105,14 @@ export function RetreatCard({ retreat, index }: RetreatCardProps) {
           >
             <Link
               href={`/retreat/${retreat.slug}`}
+              onClick={handleCardClick}
               className="text-sm tracking-wide text-charcoal-light hover:text-charcoal border-b border-stone hover:border-charcoal transition-all duration-300 pb-0.5"
             >
               Explore this retreat
             </Link>
 
             <button
-              onClick={() => toggleSave(retreat.slug)}
+              onClick={handleSave}
               className="group/save flex items-center gap-1.5 text-sm text-warm-gray hover:text-ochre transition-colors duration-300"
               aria-label={saved ? "Remove from saved" : "Save for later"}
             >

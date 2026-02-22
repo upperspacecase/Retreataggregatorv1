@@ -5,7 +5,10 @@ import { EditorialHero } from "@/components/editorial-hero";
 import { CurationStatement } from "@/components/curation-statement";
 import { IntentFilter } from "@/components/intent-filter";
 import { RetreatCard } from "@/components/retreat-card";
+import { TrustSignals } from "@/components/trust-signals";
+import { FAQ } from "@/components/faq";
 import { retreats, type Intent } from "@/data/retreats";
+import { analytics } from "@/lib/analytics";
 
 export default function Home() {
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
@@ -14,26 +17,40 @@ export default function Home() {
     ? retreats.filter((r) => r.intents.includes(selectedIntent))
     : retreats;
 
+  function handleIntentChange(intent: Intent | null) {
+    if (intent) {
+      analytics.intentFilterSelected(intent);
+    } else {
+      analytics.intentFilterCleared();
+    }
+    setSelectedIntent(intent);
+  }
+
   return (
     <>
       <EditorialHero />
 
       <CurationStatement />
 
+      <TrustSignals />
+
       <IntentFilter
         selected={selectedIntent}
-        onSelect={setSelectedIntent}
+        onSelect={handleIntentChange}
       />
 
       {/* Retreats listing */}
-      <section className="px-6 md:px-16 lg:px-24 pb-32">
+      <section
+        className="px-6 md:px-16 lg:px-24 pb-32"
+        aria-label="Retreat collection"
+      >
         <div className="max-w-6xl mx-auto space-y-24 md:space-y-32">
           {filtered.length > 0 ? (
             filtered.map((retreat, i) => (
               <RetreatCard key={retreat.slug} retreat={retreat} index={i} />
             ))
           ) : (
-            <div className="text-center py-20">
+            <div className="text-center py-20" role="status">
               <p className="font-serif text-xl text-charcoal-light italic">
                 Nothing quite fits those criteria.
               </p>
@@ -42,7 +59,7 @@ export default function Home() {
                 unexpected.
               </p>
               <button
-                onClick={() => setSelectedIntent(null)}
+                onClick={() => handleIntentChange(null)}
                 className="mt-6 text-sm text-ochre hover:text-terracotta border-b border-ochre/40 hover:border-terracotta transition-colors duration-300 pb-0.5"
               >
                 Show all retreats
@@ -52,20 +69,22 @@ export default function Home() {
         </div>
       </section>
 
+      <FAQ />
+
       {/* Footer */}
-      <footer className="border-t border-stone/40 bg-linen">
+      <footer className="border-t border-stone/40 bg-linen" role="contentinfo">
         <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-16 md:py-20">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div>
-              <h3 className="font-serif text-2xl text-charcoal mb-4">
+              <h2 className="font-serif text-2xl text-charcoal mb-4">
                 Curated Calm
-              </h3>
+              </h2>
               <p className="text-charcoal-light text-sm leading-relaxed max-w-xs">
                 A small collection of wellness retreats chosen by people who
                 believe rest is not a luxury &mdash; it&rsquo;s a practice.
               </p>
             </div>
-            <div>
+            <nav aria-label="Explore">
               <p className="text-xs tracking-[0.15em] uppercase text-warm-gray mb-4">
                 Explore
               </p>
@@ -95,8 +114,8 @@ export default function Home() {
                   </a>
                 </li>
               </ul>
-            </div>
-            <div>
+            </nav>
+            <nav aria-label="Connect">
               <p className="text-xs tracking-[0.15em] uppercase text-warm-gray mb-4">
                 Connect
               </p>
@@ -126,7 +145,7 @@ export default function Home() {
                   </a>
                 </li>
               </ul>
-            </div>
+            </nav>
           </div>
           <div className="mt-12 pt-8 border-t border-stone/30 text-xs text-warm-gray">
             <p>&copy; 2026 Curated Calm. Made with care, not urgency.</p>

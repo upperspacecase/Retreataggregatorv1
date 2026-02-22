@@ -5,6 +5,12 @@ import Link from "next/link";
 import { retreats } from "@/data/retreats";
 import { useSaved } from "@/lib/saved-context";
 import { useScrollReveal } from "@/lib/use-scroll-reveal";
+import { analytics } from "@/lib/analytics";
+import {
+  SchemaMarkup,
+  generateRetreatEventSchema,
+  generateBreadcrumbSchema,
+} from "@/components/schema-markup";
 
 function ScrollSection({
   children,
@@ -39,7 +45,10 @@ export default function RetreatDetail({
 
   useEffect(() => {
     setHeroLoaded(true);
-  }, []);
+    if (retreat) {
+      analytics.retreatViewed(retreat.slug, retreat.name, retreat.location);
+    }
+  }, [retreat]);
 
   if (!retreat) {
     return (
@@ -49,7 +58,7 @@ export default function RetreatDetail({
             Retreat not found
           </h1>
           <p className="text-charcoal-light mb-8">
-            Something went sideways. We&rsquo;re looking into it.
+            Something went sideways. We&rsquo;re looking into it &mdash; try again in a moment.
           </p>
           <Link
             href="/"
@@ -64,10 +73,57 @@ export default function RetreatDetail({
 
   const saved = isSaved(retreat.slug);
 
+  function handleSave() {
+    if (saved) {
+      analytics.retreatUnsaved(retreat!.slug);
+    } else {
+      analytics.retreatSaved(retreat!.slug, retreat!.name, retreat!.location);
+    }
+    toggleSave(retreat!.slug);
+  }
+
+  function handleBookingClick() {
+    analytics.ctaClicked("Begin booking", "retreat_detail_bottom");
+  }
+
   return (
     <article className="bg-cream">
+      {/* Structured data */}
+      <SchemaMarkup
+        schema={[
+          ...generateRetreatEventSchema(retreat),
+          generateBreadcrumbSchema([
+            { name: "Home", url: "https://curatedcalm.com" },
+            { name: "Retreats", url: "https://curatedcalm.com" },
+            {
+              name: retreat.name,
+              url: `https://curatedcalm.com/retreat/${retreat.slug}`,
+            },
+          ]),
+        ]}
+      />
+
+      {/* SEO: set document title */}
+      <title>
+        {retreat.name} in {retreat.location} | Curated Calm
+      </title>
+      <meta
+        name="description"
+        content={`${retreat.tagline} ${retreat.duration} wellness retreat in ${retreat.location}. ${retreat.priceRange}. Maximum ${retreat.maxGuests} guests.`}
+      />
+      <meta
+        property="og:title"
+        content={`${retreat.name} — ${retreat.location} | Curated Calm`}
+      />
+      <meta property="og:description" content={retreat.tagline} />
+      <meta property="og:image" content={retreat.images.hero} />
+      <meta property="og:type" content="website" />
+
       {/* Cinematic hero */}
-      <section className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
+      <section
+        className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden"
+        aria-label={`${retreat.name} hero image`}
+      >
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms]"
           style={{
@@ -75,6 +131,8 @@ export default function RetreatDetail({
             transform: heroLoaded ? "scale(1)" : "scale(1.05)",
             transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
           }}
+          role="img"
+          aria-label={`${retreat.name} in ${retreat.location}`}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-charcoal/20 via-transparent to-charcoal/60" />
 
@@ -82,7 +140,9 @@ export default function RetreatDetail({
           <div className="max-w-4xl">
             <p
               className={`text-cream/70 text-xs tracking-[0.2em] uppercase mb-3 transition-all duration-[800ms] ${
-                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+                heroLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-3"
               }`}
               style={{
                 transitionDelay: "200ms",
@@ -93,7 +153,9 @@ export default function RetreatDetail({
             </p>
             <h1
               className={`font-serif text-4xl md:text-6xl lg:text-7xl text-cream leading-[1.1] mb-4 transition-all duration-[900ms] ${
-                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                heroLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
               }`}
               style={{
                 transitionDelay: "400ms",
@@ -104,7 +166,9 @@ export default function RetreatDetail({
             </h1>
             <p
               className={`font-serif text-lg md:text-xl text-cream/85 italic max-w-2xl transition-all duration-[900ms] ${
-                heroLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                heroLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
               }`}
               style={{
                 transitionDelay: "600ms",
@@ -117,10 +181,33 @@ export default function RetreatDetail({
         </div>
       </section>
 
+      {/* Quick details bar — visible above the fold for returning visitors */}
+      <div className="border-b border-stone/20 bg-linen/50">
+        <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-6 text-sm text-charcoal-light">
+            <span>{retreat.duration}</span>
+            <span className="hidden md:inline text-stone">|</span>
+            <span>{retreat.priceRange}</span>
+            <span className="hidden md:inline text-stone">|</span>
+            <span>Max {retreat.maxGuests} guests</span>
+          </div>
+          <Link
+            href={`/book/${retreat.slug}`}
+            onClick={handleBookingClick}
+            className="px-6 py-2.5 bg-charcoal text-cream text-sm tracking-wide hover:bg-charcoal-light transition-all duration-400 rounded-sm"
+            style={{
+              transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+            }}
+          >
+            Check availability
+          </Link>
+        </div>
+      </div>
+
       {/* Main content */}
       <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24">
         {/* Description */}
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24" aria-label="About this retreat">
           <div className="max-w-3xl">
             {retreat.description.map((paragraph, i) => (
               <ScrollSection key={i} delay={i * 100}>
@@ -133,7 +220,7 @@ export default function RetreatDetail({
         </section>
 
         {/* Gallery strip */}
-        <section className="pb-16 md:pb-24">
+        <section className="pb-16 md:pb-24" aria-label="Photo gallery">
           <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 -mx-6 px-6 md:-mx-0 md:px-0 snap-x snap-mandatory">
             {retreat.images.gallery.map((img, i) => (
               <ScrollSection
@@ -144,6 +231,8 @@ export default function RetreatDetail({
                 <div
                   className="aspect-[3/2] bg-cover bg-center rounded-sm"
                   style={{ backgroundImage: `url('${img}')` }}
+                  role="img"
+                  aria-label={`${retreat.name} photo ${i + 1}`}
                 />
               </ScrollSection>
             ))}
@@ -151,11 +240,14 @@ export default function RetreatDetail({
         </section>
 
         {/* Experience narrative (second person) */}
-        <section className="py-16 md:py-24 border-t border-stone/30">
+        <section
+          className="py-16 md:py-24 border-t border-stone/30"
+          aria-label="What your days look like"
+        >
           <ScrollSection>
-            <p className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-8">
+            <h2 className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-8">
               Your Days Here
-            </p>
+            </h2>
           </ScrollSection>
           <div className="max-w-3xl space-y-8">
             {retreat.experience.map((paragraph, i) => (
@@ -169,14 +261,17 @@ export default function RetreatDetail({
         </section>
 
         {/* Practical details */}
-        <section className="py-16 md:py-24 border-t border-stone/30">
+        <section
+          className="py-16 md:py-24 border-t border-stone/30"
+          aria-label="Practical details"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
             {/* What's included */}
             <ScrollSection>
               <div>
-                <p className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-6">
+                <h2 className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-6">
                   What&rsquo;s Included
-                </p>
+                </h2>
                 <ul className="space-y-3">
                   {retreat.includes.map((item, i) => (
                     <li
@@ -195,9 +290,9 @@ export default function RetreatDetail({
             <ScrollSection delay={100}>
               <div className="space-y-8">
                 <div>
-                  <p className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-6">
+                  <h2 className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-6">
                     Upcoming Dates
-                  </p>
+                  </h2>
                   <ul className="space-y-2">
                     {retreat.dates.map((date, i) => (
                       <li key={i} className="text-charcoal-light">
@@ -208,9 +303,9 @@ export default function RetreatDetail({
                 </div>
 
                 <div>
-                  <p className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-3">
+                  <h3 className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-3">
                     Investment
-                  </p>
+                  </h3>
                   <p className="font-serif text-2xl text-charcoal">
                     {retreat.priceRange}
                   </p>
@@ -220,11 +315,11 @@ export default function RetreatDetail({
                 </div>
 
                 <div>
-                  <p className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-3">
+                  <h3 className="text-warm-gray text-xs tracking-[0.2em] uppercase mb-3">
                     Group Size
-                  </p>
+                  </h3>
                   <p className="text-charcoal-light">
-                    Maximum {retreat.maxGuests} guests
+                    Maximum {retreat.maxGuests} guests &mdash; intimate by design
                   </p>
                 </div>
               </div>
@@ -233,29 +328,34 @@ export default function RetreatDetail({
         </section>
 
         {/* Booking CTA */}
-        <section className="py-16 md:py-24 border-t border-stone/30">
+        <section
+          className="py-16 md:py-24 border-t border-stone/30"
+          aria-label="Book this retreat"
+        >
           <ScrollSection>
             <div className="max-w-xl mx-auto text-center space-y-6">
               <h2 className="font-serif text-3xl md:text-4xl text-charcoal">
-                Ready to go?
+                This could be your next chapter.
               </h2>
-              <p className="text-charcoal-light">
-                Secure your place at {retreat.name}. Our booking process is
-                simple and unhurried &mdash; just like the retreat itself.
+              <p className="text-charcoal-light leading-relaxed">
+                Secure your place at {retreat.name}. No payment today &mdash;
+                just a simple reservation to hold your dates. Our process is as
+                unhurried as the retreat itself.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link
                   href={`/book/${retreat.slug}`}
+                  onClick={handleBookingClick}
                   className="px-8 py-3.5 bg-charcoal text-cream text-sm tracking-wide hover:bg-charcoal-light transition-all duration-400 rounded-sm"
                   style={{
                     transitionTimingFunction:
                       "cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
-                  Begin booking
+                  Reserve your place
                 </Link>
                 <button
-                  onClick={() => toggleSave(retreat.slug)}
+                  onClick={handleSave}
                   className="flex items-center gap-2 px-6 py-3.5 text-sm text-charcoal-light hover:text-charcoal border border-stone hover:border-charcoal-light transition-all duration-300 rounded-sm"
                 >
                   <svg
@@ -269,16 +369,19 @@ export default function RetreatDetail({
                   >
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                   </svg>
-                  {saved ? "Saved" : "Save for later"}
+                  {saved ? "Saved to your collection" : "Save for later"}
                 </button>
               </div>
+              <p className="text-xs text-warm-gray pt-2">
+                Same price as booking direct. No hidden fees.
+              </p>
             </div>
           </ScrollSection>
         </section>
       </div>
 
-      {/* Back link */}
-      <div className="border-t border-stone/30 bg-linen">
+      {/* Back navigation */}
+      <nav className="border-t border-stone/30 bg-linen" aria-label="Breadcrumb">
         <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-12">
           <Link
             href="/"
@@ -297,7 +400,7 @@ export default function RetreatDetail({
             Back to all retreats
           </Link>
         </div>
-      </div>
+      </nav>
     </article>
   );
 }

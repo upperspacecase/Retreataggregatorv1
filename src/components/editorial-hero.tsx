@@ -10,7 +10,10 @@ export function EditorialHero() {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section
+      className="relative h-screen w-full overflow-hidden"
+      aria-label="Welcome"
+    >
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms]"
@@ -20,6 +23,8 @@ export function EditorialHero() {
           transform: loaded ? "scale(1)" : "scale(1.05)",
           transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
         }}
+        role="img"
+        aria-label="Mountain valley at dawn with soft morning light"
       />
 
       {/* Warm gradient overlay */}
@@ -54,8 +59,9 @@ export function EditorialHero() {
             transitionDelay: "500ms",
           }}
         >
-          A small, carefully chosen collection of retreats for people who
-          know that rest is not a luxury.
+          Personally vetted yoga, meditation, and wellness retreats for people
+          who know that rest is not a luxury. Not thousands of options &mdash;
+          just the right ones.
         </p>
       </div>
 
@@ -65,6 +71,7 @@ export function EditorialHero() {
           loaded ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDelay: "800ms" }}
+        aria-hidden="true"
       >
         <span className="text-cream/50 text-xs tracking-[0.2em] uppercase">
           Explore

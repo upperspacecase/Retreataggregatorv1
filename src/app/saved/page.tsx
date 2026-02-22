@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { retreats } from "@/data/retreats";
 import { useSaved } from "@/lib/saved-context";
+import { analytics } from "@/lib/analytics";
 import { useState } from "react";
 
 export default function SavedRetreats() {
@@ -17,6 +18,11 @@ export default function SavedRetreats() {
 
   return (
     <div className="min-h-screen bg-cream pt-28 md:pt-36 pb-20">
+      <title>Your Saved Retreats | Curated Calm</title>
+      <meta
+        name="description"
+        content="Your personal collection of saved wellness retreats. Places you're dreaming about."
+      />
       <div className="max-w-4xl mx-auto px-6 md:px-16 lg:px-24">
         <div className="animate-fade-up">
           <h1 className="font-serif text-3xl md:text-4xl text-charcoal mb-2">
@@ -119,6 +125,7 @@ function SavedCard({
               <button
                 onClick={() => {
                   onNoteChange(noteValue);
+                  if (noteValue.trim()) analytics.savedNoteAdded(slug);
                   setEditingNote(false);
                 }}
                 className="text-xs text-charcoal-light hover:text-charcoal transition-colors"
